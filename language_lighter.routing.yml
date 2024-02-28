@@ -1,0 +1,7 @@
+language_lighter.language_lighter_form:
+  path: "/admin/config/language-lighter/{entity_type_id}/{bundle}"
+  defaults:
+    _controller: '\Drupal\language_lighter\Controller\LanguageLighterController::light_form'
+    _title: "light_form"
+  requirements:
+    _permission: "access administration pages"
