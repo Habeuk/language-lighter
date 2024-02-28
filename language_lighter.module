@@ -62,15 +62,13 @@ function language_lighter_preprocess_language_content_settings_table(&$variables
 
   if (isset($route_bundle) && in_array($route_bundle, Element::children($element))) {
     $rows[$route_bundle] = _language_lighter_table_row_construct($element[$route_bundle]["settings"]);
+    $variables['title'] = $element['#title'];
+    $variables['build'] = [
+      '#header' => $header,
+      '#rows' => $rows,
+      '#type' => 'table',
+    ];
   }
-
-
-  $variables['title'] = $element['#title'];
-  $variables['build'] = [
-    '#header' => $header,
-    '#rows' => $rows,
-    '#type' => 'table',
-  ];
 }
 
 
@@ -111,8 +109,25 @@ function language_lighter_entity_operation(\Drupal\Core\Entity\EntityInterface $
  * Implements hook_form_FORM_ID_alter() for language_content_settings_form().
  */
 function content_translation_form_language_lighter_form_alter(array &$form, FormStateInterface $form_state) {
-  \Drupal::moduleHandler()->loadInclude('content_translation', 'inc', 'content_translation.admin');
-  _content_translation_form_language_content_settings_form_alter($form, $form_state);
+  /**
+   * @var \Drupal\Core\Routing\CurrentRouteMatch
+   */
+  $current_route_match = \Drupal::service('current_route_match');
+  $route_bundle = $current_route_match->getCurrentRouteMatch()->getParameter("bundle");
+  
+  if (isset($route_bundle)) {
+    # code...
+    \Drupal::moduleHandler()->loadInclude('content_translation', 'inc', 'content_translation.admin');
+    _content_translation_form_language_content_settings_form_alter($form, $form_state);
+    
+    
+    $entityId = Element::children($form["settings"])[0];
+    foreach (Element::children($form["settings"][$entityId]) as $bundle) {
+      if ($bundle != $route_bundle) {
+        unset($form['settings'][$entityId][$bundle]);
+      }
+    }
+    }
 }
 
 

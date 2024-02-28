@@ -2,41 +2,15 @@
 
 namespace Drupal\language_lighter\Form;
 
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\language\Entity\ContentLanguageSettings;
+use Drupal\language\Form\ContentLanguageSettingsForm;
 
 /**
  * Class LanguageLighterForm.
  */
-class LanguageLighterForm extends FormBase {
-
-  /**
-   * Drupal\Core\Entity\EntityTypeManagerInterface definition.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
-   * Drupal\Core\Entity\EntityTypeBundleInfoInterface definition.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
-   */
-  protected $entityTypeBundleInfo;
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    $instance = parent::create($container);
-    $instance->entityTypeManager = $container->get('entity_type.manager');
-    $instance->entityTypeBundleInfo = $container->get('entity_type.bundle.info');
-    return $instance;
-  }
-
+class LanguageLighterForm extends ContentLanguageSettingsForm {
   /**
    * {@inheritdoc}
    */
@@ -137,26 +111,5 @@ class LanguageLighterForm extends FormBase {
       // @TODO: Validate fields.
     }
     parent::validateForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $settings = $form_state;
-    dd($settings);
-    $entity_types = $form_state->getValue('entity_types');
-    foreach ($form_state->getValue('settings') as $entity_type => $entity_settings) {
-      foreach ($entity_settings as $bundle => $bundle_settings) {
-        $config = ContentLanguageSettings::loadByEntityTypeBundle($entity_type, $bundle);
-        if (empty($entity_types[$entity_type])) {
-          $bundle_settings['settings']['language']['language_alterable'] = FALSE;
-        }
-        $config->setDefaultLangcode($bundle_settings['settings']['language']['langcode'])
-          ->setLanguageAlterable($bundle_settings['settings']['language']['language_alterable'])
-          ->save();
-      }
-    }
-    $this->messenger()->addStatus($this->t('Settings successfully updated.'));
   }
 }
