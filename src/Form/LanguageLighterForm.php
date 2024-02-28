@@ -4,6 +4,7 @@ namespace Drupal\language_lighter\Form;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
+use Drupal\Core\Url;
 use Drupal\language\Entity\ContentLanguageSettings;
 use Drupal\language\Form\ContentLanguageSettingsForm;
 
@@ -29,9 +30,13 @@ class LanguageLighterForm extends ContentLanguageSettingsForm {
     $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
     $bundle = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id)[$bundle_id] ?? null;
 
-
     if (!$entity_type instanceof ContentEntityTypeInterface || !$entity_type->hasKey('langcode') || !isset($bundle)) {
-      return [];
+      $destination = \Drupal::request()->query->get('destination');
+      $url = Url::fromUserInput($destination)->toUriString();
+
+      $this->messenger()->addWarning($this->t('Something went wrong'));
+
+      return $this->redirect('<front>');
     }
 
 

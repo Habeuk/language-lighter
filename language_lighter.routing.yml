@@ -5,3 +5,10 @@ language_lighter.language_lighter_form:
     _title: "light_form"
   requirements:
     _permission: "access administration pages"
+language_lighter.language_lighter_settings:
+  path: "/admin/config/system/language-lighter"
+  defaults:
+    _title: "Language lighter settings"
+    _form: '\Drupal\language_lighter\Form\LanguageLighterSettings'
+  requirements:
+    _permission: "administer site configuration"

@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
@@ -78,29 +79,29 @@ function language_lighter_preprocess_language_content_settings_table(&$variables
  * @param \Drupal\Core\Entity\EntityInterface $entity
  */
 function language_lighter_entity_operation(\Drupal\Core\Entity\EntityInterface $entity) {
-  $entitytype = $entity->getEntityType();
-  $entityId = $entitytype->get("bundle_of") ?? $entitytype->id();
+  $entityType = $entity->getEntityType();
+  $entityId = $entityType->get("bundle_of") ?? $entityType->id();
   $bundleId = $entity->id();
-  // dd($entityId);
-  switch ($entityId) {
-    case 'view':
-    case 'menu':
-      return [];
-      break;
-    default:
-      return [
-        'clone' => [
-          'title' => t('Translatation settings'),
-          'weight' => 50,
-          'url' => Url::fromRoute('language_lighter.language_lighter_form', [
-            'entity_type_id' => $entityId,
-            'bundle' => $bundleId,
-          ], [
-            'query' => \Drupal::destination()->getAsArray()
-          ])
-        ]
-      ];
-      break;
+
+  if ($entityId == "menu") {
+    $entityId = "menu_link_content";
+  }
+
+  $lLighterSettings = \Drupal::config('language_lighter.settings')->get('entities_light_lang');
+  // dd($lLighterSettings);
+  if (isset($lLighterSettings) && (bool)$lLighterSettings[$entityId]) {
+    return [
+      'clone' => [
+        'title' => t('Translatation settings'),
+        'weight' => 50,
+        'url' => Url::fromRoute('language_lighter.language_lighter_form', [
+          'entity_type_id' => $entityId,
+          'bundle' => $bundleId,
+        ], [
+          'query' => \Drupal::destination()->getAsArray()
+        ])
+      ]
+    ];
   }
 }
 
@@ -114,20 +115,20 @@ function content_translation_form_language_lighter_form_alter(array &$form, Form
    */
   $current_route_match = \Drupal::service('current_route_match');
   $route_bundle = $current_route_match->getCurrentRouteMatch()->getParameter("bundle");
-  
+
   if (isset($route_bundle)) {
     # code...
     \Drupal::moduleHandler()->loadInclude('content_translation', 'inc', 'content_translation.admin');
     _content_translation_form_language_content_settings_form_alter($form, $form_state);
-    
-    
+
+    // dump($form);
     $entityId = Element::children($form["settings"])[0];
     foreach (Element::children($form["settings"][$entityId]) as $bundle) {
       if ($bundle != $route_bundle) {
         unset($form['settings'][$entityId][$bundle]);
       }
     }
-    }
+  }
 }
 
 
