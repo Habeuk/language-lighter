@@ -1,7 +1,7 @@
 name: "Language Lighter"
 type: module
 description: "A module that helps you update the content language translation status directly through their configuration page"
-core_version_requirement: 9.x
+core_version_requirement: 9.x|10.x
 package: "Custom"
 dependencies:
   - drupal:language

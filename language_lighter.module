@@ -1,11 +1,11 @@
 <?php
-
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 
 /**
+ *
  * @file
  * Contains language_lighter.module.
  */
@@ -17,30 +17,33 @@ use Drupal\Core\Routing\RouteMatchInterface;
  */
 function language_lighter_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
-      // Main module help for the language_lighter module.
+    // Main module help for the language_lighter module.
     case 'help.page.language_lighter':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('A module that helps you update the content language translation status directly through their configuration page') . '</p>';
       return $output;
-
+    
     default:
   }
 }
-
 
 /**
  * Prepares variables for language content settings table templates.
  *
  * Default template: language-content-settings-table.html.twig.
+ * implement hook_preprocess_hook
  *
  * @param array $variables
- *   An associative array containing:
- *   - element: An associative array containing the properties of the element.
- *     Properties used: #bundle_label, #title.
+ *        An associative array containing:
+ *        - element: An associative array containing the properties of the
+ *        element.
+ *        Properties used: #bundle_label, #title.
+ *        
  */
 function language_lighter_preprocess_language_content_settings_table(&$variables) {
   /**
+   *
    * @var \Drupal\Core\Routing\CurrentRouteMatch
    */
   $current_route_match = \Drupal::service('current_route_match');
@@ -50,28 +53,31 @@ function language_lighter_preprocess_language_content_settings_table(&$variables
   $header = [
     [
       'data' => $element['#bundle_label'],
-      'class' => ['bundle'],
+      'class' => [
+        'bundle'
+      ]
     ],
     [
       'data' => t('Configuration'),
-      'class' => ['operations'],
-    ],
+      'class' => [
+        'operations'
+      ]
+    ]
   ];
-
+  
   $rows = [];
   $route_bundle = $current_route_match->getCurrentRouteMatch()->getParameter("bundle");
-
+  
   if (isset($route_bundle) && in_array($route_bundle, Element::children($element))) {
     $rows[$route_bundle] = _language_lighter_table_row_construct($element[$route_bundle]["settings"]);
     $variables['title'] = $element['#title'];
     $variables['build'] = [
       '#header' => $header,
       '#rows' => $rows,
-      '#type' => 'table',
+      '#type' => 'table'
     ];
   }
 }
-
 
 /**
  * implement hook_entity_operation
@@ -82,21 +88,21 @@ function language_lighter_entity_operation(\Drupal\Core\Entity\EntityInterface $
   $entityType = $entity->getEntityType();
   $entityId = $entityType->get("bundle_of") ?? $entityType->id();
   $bundleId = $entity->id();
-
+  
   if ($entityId == "menu") {
     $entityId = "menu_link_content";
   }
-
+  
   $lLighterSettings = \Drupal::config('language_lighter.settings')->get('entities_light_lang');
-  // dd($lLighterSettings);
-  if (isset($lLighterSettings) && (bool)$lLighterSettings[$entityId]) {
+  // dump($lLighterSettings, $entityId);
+  if (isset($lLighterSettings) && isset($lLighterSettings[$entityId]) && (bool) $lLighterSettings[$entityId]) {
     return [
       'clone' => [
         'title' => t('Translatation settings'),
         'weight' => 50,
         'url' => Url::fromRoute('language_lighter.language_lighter_form', [
           'entity_type_id' => $entityId,
-          'bundle' => $bundleId,
+          'bundle' => $bundleId
         ], [
           'query' => \Drupal::destination()->getAsArray()
         ])
@@ -105,22 +111,22 @@ function language_lighter_entity_operation(\Drupal\Core\Entity\EntityInterface $
   }
 }
 
-
 /**
  * Implements hook_form_FORM_ID_alter() for language_content_settings_form().
  */
 function content_translation_form_language_lighter_form_alter(array &$form, FormStateInterface $form_state) {
   /**
+   *
    * @var \Drupal\Core\Routing\CurrentRouteMatch
    */
   $current_route_match = \Drupal::service('current_route_match');
   $route_bundle = $current_route_match->getCurrentRouteMatch()->getParameter("bundle");
-
+  
   if (isset($route_bundle)) {
     # code...
     \Drupal::moduleHandler()->loadInclude('content_translation', 'inc', 'content_translation.admin');
     _content_translation_form_language_content_settings_form_alter($form, $form_state);
-
+    
     // dump($form);
     $entityId = Element::children($form["settings"])[0];
     foreach (Element::children($form["settings"][$entityId]) as $bundle) {
@@ -131,24 +137,28 @@ function content_translation_form_language_lighter_form_alter(array &$form, Form
   }
 }
 
-
-
 function _language_lighter_table_row_construct($settings) {
-  return  [
+  return [
     'data' => [
       [
         'data' => [
           '#prefix' => '<label>',
           '#suffix' => '</label>',
-          '#plain_text' => $settings['#label'],
+          '#plain_text' => $settings['#label']
         ],
-        'class' => ['bundle'],
+        'class' => [
+          'bundle'
+        ]
       ],
       [
         'data' => $settings,
-        'class' => ['operations'],
-      ],
+        'class' => [
+          'operations'
+        ]
+      ]
     ],
-    'class' => ['bundle-settings'],
+    'class' => [
+      'bundle-settings'
+    ]
   ];
 }
