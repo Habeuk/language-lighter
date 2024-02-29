@@ -1,0 +1,6 @@
+language_lighter.settings:
+  title: "Language Lighter settings"
+  parent: system.admin_config_system
+  description: "Configure settings for language lighter moduel."
+  route_name: language_lighter.language_lighter_settings
+  weight: 50
