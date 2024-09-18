@@ -10,7 +10,7 @@ use Drupal\Core\Controller\ControllerBase;
  *        
  */
 class GenerateMenuConfigTranslation extends ControllerBase {
-  
+
   /**
    * Permet de generer la configuration pour la traduction des menus.
    *
@@ -32,8 +32,10 @@ class GenerateMenuConfigTranslation extends ControllerBase {
               'untranslatable_fields_hide' => 0
             ]
           ]
-        ]
+        ],
+        "default_langcode" => "current_interface"
       ];
+
       $configTranslate = \Drupal\language\Entity\ContentLanguageSettings::create($values);
       $configTranslate->save();
     }
