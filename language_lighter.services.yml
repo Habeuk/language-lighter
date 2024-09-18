@@ -1,0 +1,4 @@
+services:
+  language_lighter.geneenuconnslation:
+    class: Drupal\language_lighter\Services\GenerateMenuConfigTranslation
+    arguments: []
