@@ -97,7 +97,7 @@ function language_lighter_entity_operation(\Drupal\Core\Entity\EntityInterface $
   // dump($lLighterSettings, $entityId);
   if (isset($lLighterSettings) && isset($lLighterSettings[$entityId]) && (bool) $lLighterSettings[$entityId]) {
     return [
-      'clone' => [
+      'translate_contents' => [
         'title' => t('Translatation settings'),
         'weight' => 50,
         'url' => Url::fromRoute('language_lighter.language_lighter_form', [
